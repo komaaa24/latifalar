@@ -37,11 +37,8 @@ export async function handleStart(ctx: Context) {
     const userId = ctx.from?.id;
     if (!userId) return;
 
-    console.log(`\n👤 User START bosdi - ID: ${userId}, Username: @${ctx.from?.username || "no_username"}, Name: ${ctx.from?.first_name || "No name"}`);
-
     // Foydalanuvchini yaratish/yangilash
     if (!users.has(userId)) {
-        console.log(`✨ Yangi user yaratildi: ${userId}`);
         users.set(userId, {
             telegramId: userId,
             username: ctx.from?.username,
@@ -49,8 +46,6 @@ export async function handleStart(ctx: Context) {
             hasPaid: false,
             viewedAnecdotes: 0
         });
-    } else {
-        console.log(`✅ Mavjud user: ${userId}`);
     }
 
     const keyboard = new InlineKeyboard()
@@ -107,11 +102,9 @@ export async function handleSectionSelect(ctx: Context, section: string) {
     const userId = ctx.from?.id;
     if (!userId) return;
 
-    console.log(`📂 User ${userId} bo'lim tanladi: "${section}"`);
-
     const user = users.get(userId);
     if (!user) {
-        console.log(`❌ User ${userId} topilmadi`);
+        console.error(`❌ ERROR: User ${userId} topilmadi (handleSectionSelect)`);
         return;
     }
 
@@ -119,9 +112,9 @@ export async function handleSectionSelect(ctx: Context, section: string) {
         ? anecdotes
         : anecdotes.filter(a => a.section.toLowerCase() === section.toLowerCase());
 
-    console.log(`🔍 Bo'limda topildi: ${filteredAnecdotes.length} ta latifa`);
-
     if (filteredAnecdotes.length === 0) {
+        console.error(`❌ ERROR: Bo'limda latifalar topilmadi - Section: "${section}"`);
+
         await ctx.answerCallbackQuery({
             text: "Bu bo'limda latifalar topilmadi 😔",
             show_alert: true
@@ -223,16 +216,13 @@ export async function handlePayment(ctx: Context) {
     const userId = ctx.from?.id;
     if (!userId) return;
 
-    console.log(`\n💳 User ${userId} to'lov tugmasini bosdi`);
-
     const user = users.get(userId);
     if (!user) {
-        console.log(`❌ User ${userId} topilmadi`);
+        console.error(`❌ ERROR: User ${userId} topilmadi (handlePayment)`);
         return;
     }
 
     if (user.hasPaid) {
-        console.log(`✅ User ${userId} allaqachon to'lov qilgan`);
         await ctx.answerCallbackQuery({
             text: "Siz allaqachon to'lov qilgansiz! ✅",
             show_alert: true
@@ -242,11 +232,7 @@ export async function handlePayment(ctx: Context) {
 
     // To'lov parametrlari
     const amount = 1111;
-    const transactionParam = generateTransactionParam();
-
-    console.log(`📝 To'lov oynasi ko'rsatilmoqda - User: ${userId}, Amount: ${amount}, Tx: ${transactionParam}`);
-
-    // Click to'lov linkini yaratish
+    const transactionParam = generateTransactionParam();    // Click to'lov linkini yaratish
     // merchant_user_id ni qo'shmasak, Click o'zi default qiymat beradi
     const paymentUrl = `https://my.click.uz/services/pay?` +
         `service_id=${process.env.CLICK_SERVICE_ID}&` +

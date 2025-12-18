@@ -125,15 +125,7 @@ app.get("/health", (req, res) => {
 app.post("/webhook/click", async (req, res) => {
     const { action } = req.body;
 
-    // Log incoming webhook request
-    console.log("\n" + "=".repeat(70));
-    console.log("📨 INCOMING CLICK WEBHOOK REQUEST");
-    console.log("=".repeat(70));
-    console.log("📅 Time:", new Date().toISOString());
-    console.log("🔄 Action:", action === 0 ? "PREPARE" : action === 1 ? "COMPLETE" : "UNKNOWN");
-    console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
-    console.log("=".repeat(70) + "\n");
-
+    // Faqat xatolik bo'lsa log yoziladi
     try {
         if (action === 0) {
             // PREPARE
@@ -142,15 +134,22 @@ app.post("/webhook/click", async (req, res) => {
             // COMPLETE
             await handleClickComplete(req, res, bot);
         } else {
-            console.error("❌ Unknown action:", action);
+            console.error("❌ ERROR: Unknown action:", action);
+            console.error("Request body:", JSON.stringify(req.body, null, 2));
             res.status(400).json({
                 error: -3,
                 error_note: "Unknown action"
             });
         }
     } catch (error) {
-        console.error("❌ Webhook error:", error);
-        console.error("Stack trace:", error instanceof Error ? error.stack : String(error));
+        console.error("\n" + "=".repeat(70));
+        console.error("❌ CRITICAL ERROR: Webhook failed");
+        console.error("=".repeat(70));
+        console.error("Error:", error);
+        console.error("Stack:", error instanceof Error ? error.stack : String(error));
+        console.error("Request body:", JSON.stringify(req.body, null, 2));
+        console.error("=".repeat(70) + "\n");
+
         res.status(500).json({
             error: -8,
             error_note: "Internal server error"

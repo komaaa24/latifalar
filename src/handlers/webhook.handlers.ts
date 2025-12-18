@@ -27,22 +27,6 @@ export async function handleClickPrepare(req: Request, res: Response, bot: Bot) 
         error_note
     } = req.body;
 
-    console.log(`
-╔════════════════════════════════════════════════════════════╗
-║                  CLICK PREPARE REQUEST                     ║
-╠════════════════════════════════════════════════════════════╣
-║ Click Trans ID: ${click_trans_id}
-║ Service ID: ${service_id}
-║ Merchant Trans ID: ${merchant_trans_id}
-║ Merchant User ID: ${merchant_user_id}
-║ Amount: ${amount}
-║ Action: ${action}
-║ Sign Time: ${sign_time}
-║ Error: ${error || 'none'}
-║ Error Note: ${error_note || 'none'}
-╚════════════════════════════════════════════════════════════╝
-    `);
-
     const secretKey = process.env.CLICK_SECRET_KEY!;
 
     // Signature tekshirish
@@ -87,7 +71,6 @@ export async function handleClickPrepare(req: Request, res: Response, bot: Bot) 
         });
     }
 
-    console.log(`✅ PREPARE: Transaction found - ID: ${payment.id}, User: ${payment.userId}`);
 
     // Summa tekshirish
     if (parseFloat(amount) !== parseFloat(payment.amount.toString())) {
@@ -128,7 +111,6 @@ export async function handleClickPrepare(req: Request, res: Response, bot: Bot) 
         sign_time
     );
 
-    console.log(`✅ PREPARE: Success - Merchant Prepare ID: ${merchantPrepareIdNum}`);
 
     // Muvaffaqiyatli javob
     const response = {
@@ -141,7 +123,6 @@ export async function handleClickPrepare(req: Request, res: Response, bot: Bot) 
         sign_string: responseSignature
     };
 
-    console.log("📤 PREPARE response:", response);
     return res.json(response);
 }
 
@@ -166,18 +147,6 @@ export async function handleClickComplete(req: Request, res: Response, bot: Bot)
 
     console.log(`
 ╔════════════════════════════════════════════════════════════╗
-║                  CLICK COMPLETE REQUEST                    ║
-╠════════════════════════════════════════════════════════════╣
-║ Click Trans ID: ${click_trans_id}
-║ Service ID: ${service_id}
-║ Merchant Trans ID: ${merchant_trans_id}
-║ Merchant Prepare ID: ${merchant_prepare_id}
-║ Merchant User ID: ${merchant_user_id}
-║ Amount: ${amount}
-║ Action: ${action}
-║ Sign Time: ${sign_time}
-║ Error from Click: ${error || 0}
-╚════════════════════════════════════════════════════════════╝
     `);
 
     const secretKey = process.env.CLICK_SECRET_KEY!;
@@ -239,7 +208,6 @@ export async function handleClickComplete(req: Request, res: Response, bot: Bot)
         });
     }
 
-    console.log(`✅ COMPLETE: Transaction found - ID: ${payment.id}, Status: ${payment.status}`);
 
     // Agar Click error qaytargan bo'lsa
     if (error && error !== 0) {
@@ -323,7 +291,6 @@ export async function handleClickComplete(req: Request, res: Response, bot: Bot)
         sign_time
     );
 
-    console.log("✅ Payment completed successfully");
 
     return res.json({
         click_trans_id,

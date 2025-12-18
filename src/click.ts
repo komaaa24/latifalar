@@ -44,31 +44,27 @@ export function generateClickLink(
   transactionParam?: string
 ): { link: string; tx: string } {
   const tx = transactionParam || uuidv4().replace(/-/g, "");
-  const additional_param3 = uuidv4().replace(/-/g, "");
 
   const serviceId = process.env.CLICK_SERVICE_ID;
   const merchantId = process.env.CLICK_MERCHANT_ID;
   const returnUrl = process.env.CLICK_RETURN_URL;
 
   if (!serviceId || !merchantId) {
-    console.error("CLICK_SERVICE_ID or CLICK_MERCHANT_ID not found in .env");
+    console.error("❌ ERROR: CLICK_SERVICE_ID or CLICK_MERCHANT_ID not found in .env");
     throw new Error("Click configuration incomplete");
   }
 
-  // Click to'lov linki - sizning formatda
+  // Click to'lov linki - faqat zarur parametrlar
+  // additional_param parametrlari -2041 xatoligini keltirib chiqaradi
   const params = new URLSearchParams({
     service_id: serviceId,
     merchant_id: merchantId,
     amount: String(amount),
     transaction_param: tx,
-    additional_param3: additional_param3,
-    additional_param4: "basic",
     return_url: returnUrl || "https://t.me/latifalar1_bot"
   });
 
   const link = `https://my.click.uz/services/pay?${params.toString()}`;
-
-  // Faqat xatolik bo'lsa log yoziladi (yuqorida if (!serviceId...) da)
 
   return { link, tx };
 }

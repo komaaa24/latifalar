@@ -16,6 +16,7 @@ export interface ClickPaymentLink {
 
 /**
  * Click to'lov linkini yaratish
+ * OCTO USULI: URLSearchParams ishlatmaslik! To'g'ridan-to'g'ri string concatenation
  */
 export function generateClickPaymentLink(params: ClickPaymentParams): ClickPaymentLink {
     const {
@@ -27,19 +28,10 @@ export function generateClickPaymentLink(params: ClickPaymentParams): ClickPayme
         merchantUserId
     } = params;
 
-    // merchant_user_id ni qo'shmasak, Click -2046 xatoligini bermaydi
-    const urlParams = new URLSearchParams({
-        service_id: serviceId,
-        merchant_id: merchantId,
-        amount: amount.toString(),
-        transaction_param: transactionParam,
-        return_url: returnUrl,
-    });
-
-    // IMPORTANT: merchantUserId ni intentionally qo'shmaymiz
-    // Chunki Click kabinetda bu user ro'yxatdan o'tmagan bo'lishi mumkin
-
-    const url = `https://my.click.uz/services/pay?${urlParams.toString()}`;
+    // OCTO USULI: URLSearchParams ishlatmaslik kerak!
+    // Chunki u return_url ni encode qiladi va Click buni yoqtirmaydi
+    // Octo proyektida ham xuddi shunday qilingan
+    const url = `https://my.click.uz/services/pay?service_id=${serviceId}&merchant_id=${merchantId}&amount=${amount}&transaction_param=${transactionParam}&return_url=${returnUrl}`;
 
     return {
         url,

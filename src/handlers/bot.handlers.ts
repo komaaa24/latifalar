@@ -264,7 +264,7 @@ export async function handlePayment(ctx: Context) {
 /**
  * To'lovni tekshirish
  */
-export async function handleCheckPayment(ctx: Context, paymentId: number) {
+export async function handleCheckPayment(ctx: Context, paymentId: string) {
     const paymentRepo = AppDataSource.getRepository(Payment);
     const payment = await paymentRepo.findOne({
         where: { id: paymentId },

@@ -121,11 +121,16 @@ app.get("/health", (req, res) => {
     });
 });
 
-// Click webhook endpoint
+// Click webhook endpoint - ASOSIY
 app.post("/webhook/click", async (req, res) => {
     const { action } = req.body;
 
-    // Faqat xatolik bo'lsa log yoziladi
+    console.log("\n" + "🌐".repeat(40));
+    console.log("📥 INCOMING CLICK WEBHOOK REQUEST - /webhook/click");
+    console.log("  Action:", action, action === 0 ? "(PREPARE)" : action === 1 ? "(COMPLETE)" : "(UNKNOWN)");
+    console.log("  Time:", new Date().toISOString());
+    console.log("🌐".repeat(40) + "\n");
+
     try {
         if (action === 0) {
             // PREPARE
@@ -134,22 +139,58 @@ app.post("/webhook/click", async (req, res) => {
             // COMPLETE
             await handleClickComplete(req, res, bot);
         } else {
-            console.error("❌ ERROR: Unknown action:", action);
-            console.error("Request body:", JSON.stringify(req.body, null, 2));
+            console.error("\n" + "❌".repeat(40));
+            console.error("ERROR: Unknown action received!");
+            console.error("  Action:", action);
+            console.error("  Expected: 0 (PREPARE) or 1 (COMPLETE)");
+            console.error("  Full request body:");
+            console.error(JSON.stringify(req.body, null, 2));
+            console.error("❌".repeat(40) + "\n");
+
             res.status(400).json({
                 error: -3,
                 error_note: "Unknown action"
             });
         }
     } catch (error) {
-        console.error("\n" + "=".repeat(70));
-        console.error("❌ CRITICAL ERROR: Webhook failed");
-        console.error("=".repeat(70));
+        console.error("\n" + "💥".repeat(40));
+        console.error("CRITICAL ERROR: Webhook handler crashed!");
+        console.error("💥".repeat(40));
         console.error("Error:", error);
         console.error("Stack:", error instanceof Error ? error.stack : String(error));
         console.error("Request body:", JSON.stringify(req.body, null, 2));
-        console.error("=".repeat(70) + "\n");
+        console.error("💥".repeat(40) + "\n");
 
+        res.status(500).json({
+            error: -8,
+            error_note: "Internal server error"
+        });
+    }
+});
+
+// Click webhook endpoint - QO'SHIMCHA (agar kabinetda /api/click yozilgan bo'lsa)
+app.post("/api/click", async (req, res) => {
+    console.log("\n" + "⚠️ ".repeat(40));
+    console.log("📥 CLICK WEBHOOK REQUEST RECEIVED ON /api/click");
+    console.log("   Redirecting to main webhook handler...");
+    console.log("⚠️ ".repeat(40) + "\n");
+
+    const { action } = req.body;
+
+    try {
+        if (action === 0) {
+            await handleClickPrepare(req, res, bot);
+        } else if (action === 1) {
+            await handleClickComplete(req, res, bot);
+        } else {
+            console.error("ERROR: Unknown action:", action);
+            res.status(400).json({
+                error: -3,
+                error_note: "Unknown action"
+            });
+        }
+    } catch (error) {
+        console.error("CRITICAL ERROR:", error);
         res.status(500).json({
             error: -8,
             error_note: "Internal server error"

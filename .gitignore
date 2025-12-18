@@ -30,3 +30,6 @@ build/
 # Database
 *.sqlite
 *.db
+
+# Octo folder (boshqa proyekt)
+octo/

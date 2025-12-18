@@ -37,12 +37,14 @@ export function getClickErrorMessage(errorCode: number): string {
 
 /**
  * Click to'lov linkini generatsiya qilish
+ * Format: https://my.click.uz/services/pay?service_id=...&merchant_id=...
  */
 export function generateClickLink(
   amount: number, 
   transactionParam?: string
 ): { link: string; tx: string } {
   const tx = transactionParam || uuidv4().replace(/-/g, "");
+  const additional_param3 = uuidv4().replace(/-/g, "");
 
   const serviceId = process.env.CLICK_SERVICE_ID;
   const merchantId = process.env.CLICK_MERCHANT_ID;
@@ -53,11 +55,14 @@ export function generateClickLink(
     throw new Error("Click configuration incomplete");
   }
 
+  // Click to'lov linki - sizning formatda
   const params = new URLSearchParams({
     service_id: serviceId,
     merchant_id: merchantId,
     amount: String(amount),
     transaction_param: tx,
+    additional_param3: additional_param3,
+    additional_param4: "basic",
     return_url: returnUrl || "https://t.me/latifalar1_bot"
   });
 
@@ -66,6 +71,7 @@ export function generateClickLink(
   console.log("Click payment link generated:");
   console.log("Link:", link);
   console.log("Transaction ID:", tx);
+  console.log("Additional Param3:", additional_param3);
 
   return { link, tx };
 }
